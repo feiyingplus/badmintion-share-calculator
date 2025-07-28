@@ -25,3 +25,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# netlify
+.netlify/
+
+# testsprite
+/testsprite_tests
+
+// Cypress
+cypress/videos
+cypress/screenshots

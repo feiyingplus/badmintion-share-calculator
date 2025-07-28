@@ -204,18 +204,18 @@ export default function BadmintonCalculator() {
       <div className="max-w-md mx-auto space-y-6">
         {/* 标题 */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2" data-cy="calculator-title">
             <Calculator className="w-8 h-8 text-green-600" />
             羽毛球费用计算器
           </h1>
-          <p className="text-gray-600">智能计算羽毛球活动费用</p>
+          <p className="text-gray-600" data-cy="calculator-subtitle">智能计算羽毛球活动费用</p>
         </div>
 
         {/* 费用设定区域 */}
         <Card className="shadow-lg">
           <Collapsible open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
             <CollapsibleTrigger asChild>
-              <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
+              <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors" data-cy="settings-collapsible">
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Calculator className="w-5 h-5 text-blue-600" />
@@ -223,7 +223,7 @@ export default function BadmintonCalculator() {
                   </div>
                   <ChevronDown className={`w-5 h-5 transition-transform ${isSettingsOpen ? "rotate-180" : ""}`} />
                 </CardTitle>
-                <CardDescription>当前单价: ¥{calculateSinglePrice().toFixed(2)}/个</CardDescription>
+                <CardDescription data-cy="current-price-display">当前单价: ¥{calculateSinglePrice().toFixed(2)}/个</CardDescription>
               </CardHeader>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -239,6 +239,7 @@ export default function BadmintonCalculator() {
                         className={`px-3 py-1 text-xs rounded transition-colors ${
                           !useSinglePrice ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"
                         }`}
+                        data-cy="bucket-mode-button"
                       >
                         按桶设定
                       </button>
@@ -248,6 +249,7 @@ export default function BadmintonCalculator() {
                         className={`px-3 py-1 text-xs rounded transition-colors ${
                           useSinglePrice ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"
                         }`}
+                        data-cy="single-mode-button"
                       >
                         单价设定
                       </button>
@@ -264,6 +266,7 @@ export default function BadmintonCalculator() {
                             type="number"
                             value={settings.bucketPrice}
                             onChange={(e) => updateSettings("bucketPrice", Number(e.target.value))}
+                            data-cy="bucket-price-input"
                           />
                         </div>
                         <div>
@@ -273,6 +276,7 @@ export default function BadmintonCalculator() {
                             type="number"
                             value={settings.bucketQuantity}
                             onChange={(e) => updateSettings("bucketQuantity", Number(e.target.value))}
+                            data-cy="bucket-quantity-input"
                           />
                         </div>
                       </div>
@@ -339,6 +343,7 @@ export default function BadmintonCalculator() {
                         type="number"
                         value={settings.venue2Hours}
                         onChange={(e) => updateSettings("venue2Hours", Number(e.target.value))}
+                        data-cy="venue-2hours-input"
                       />
                     </div>
                     <div>
@@ -348,12 +353,13 @@ export default function BadmintonCalculator() {
                         type="number"
                         value={settings.venue3Hours}
                         onChange={(e) => updateSettings("venue3Hours", Number(e.target.value))}
+                        data-cy="venue-3hours-input"
                       />
                     </div>
                   </div>
                 </div>
 
-                <Button onClick={resetSettings} variant="outline" className="w-full bg-transparent">
+                <Button onClick={resetSettings} variant="outline" className="w-full bg-transparent" data-cy="reset-settings-button">
                   <Calculator className="w-4 h-4 mr-2" />
                   恢复默认设定
                 </Button>
@@ -387,6 +393,7 @@ export default function BadmintonCalculator() {
                     value={people3Hours || ""}
                     onChange={(e) => setPeople3Hours(Number(e.target.value) || 0)}
                     placeholder="0"
+                    data-cy="people-3hours-input"
                   />
                 </div>
                 <div>
@@ -398,6 +405,7 @@ export default function BadmintonCalculator() {
                     value={people2Hours || ""}
                     onChange={(e) => setPeople2Hours(Number(e.target.value) || 0)}
                     placeholder="0"
+                    data-cy="people-2hours-input"
                   />
                 </div>
               </div>
@@ -422,6 +430,7 @@ export default function BadmintonCalculator() {
                     value={balls6to7 || ""}
                     onChange={(e) => setBalls6to7(Number(e.target.value) || 0)}
                     placeholder="0"
+                    data-cy="balls-6to7-input"
                   />
                 </div>
                 <div>
@@ -433,6 +442,7 @@ export default function BadmintonCalculator() {
                     value={balls7to9 || ""}
                     onChange={(e) => setBalls7to9(Number(e.target.value) || 0)}
                     placeholder="0"
+                    data-cy="balls-7to9-input"
                   />
                 </div>
               </div>
@@ -543,7 +553,7 @@ export default function BadmintonCalculator() {
                 {/* 总结文字 */}
                 <div className="bg-orange-50 p-3 rounded-lg border-2 border-orange-200">
                   <p className="text-sm text-gray-700 mb-3 font-medium">{costs.summary}</p>
-                  <Button onClick={copyToClipboard} className="w-full bg-orange-600 hover:bg-orange-700">
+                  <Button onClick={copyToClipboard} className="w-full bg-orange-600 hover:bg-orange-700" data-cy="copy-button">
                     <Copy className="w-4 h-4 mr-2" />
                     复制费用总结
                   </Button>
