@@ -19,21 +19,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-          cache: 'pnpm'  # 改为 pnpm
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
+          cache: 'npm'  # Changed from pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci # Changed from pnpm install
 
       - name: Install Cypress binary
-        run: pnpm exec cypress install
+        run: npx cypress install # Changed from pnpm exec
 
       - name: Run Cypress tests
-        run: pnpm run test:e2e
+        run: npm run test:e2e # Changed from pnpm run
         continue-on-error: true  # 即使测试失败也继续执行
 
       - name: Upload test artifacts
@@ -58,18 +53,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-          cache: 'pnpm'  # 改为 pnpm
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
+          cache: 'npm'  # Changed from pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci # Changed from pnpm install
 
       - name: Build
-        run: pnpm run build
+        run: npm run build # Changed from pnpm run
         env:
           # 如果有环境变量，在这里添加
           NODE_ENV: production
