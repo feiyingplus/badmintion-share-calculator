@@ -200,7 +200,7 @@ export default function BadmintonCalculator() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4" suppressHydrationWarning>
       <div className="max-w-md mx-auto space-y-6">
         {/* 标题 */}
         <div className="text-center">
@@ -208,7 +208,7 @@ export default function BadmintonCalculator() {
             <Calculator className="w-8 h-8 text-green-600" />
             羽毛球费用计算器
           </h1>
-          <p className="text-gray-600" data-cy="calculator-subtitle">智能计算羽毛球活动费用</p>
+          <p className="text-gray-600" data-cy="calculator-subtitle">🏸羽动人生🏸</p>
         </div>
 
         {/* 费用设定区域 */}
@@ -264,8 +264,9 @@ export default function BadmintonCalculator() {
                           <Input
                             id="bucketPrice"
                             type="number"
-                            value={settings.bucketPrice}
-                            onChange={(e) => updateSettings("bucketPrice", Number(e.target.value))}
+                            value={settings.bucketPrice || ""}
+                            onChange={(e) => updateSettings("bucketPrice", Number(e.target.value) || 0)}
+                            placeholder="0"
                             data-cy="bucket-price-input"
                           />
                         </div>
@@ -274,13 +275,14 @@ export default function BadmintonCalculator() {
                           <Input
                             id="bucketQuantity"
                             type="number"
-                            value={settings.bucketQuantity}
-                            onChange={(e) => updateSettings("bucketQuantity", Number(e.target.value))}
+                            value={settings.bucketQuantity || ""}
+                            onChange={(e) => updateSettings("bucketQuantity", Number(e.target.value) || 0)}
+                            placeholder="0"
                             data-cy="bucket-quantity-input"
                           />
                         </div>
                       </div>
-                      <div className="bg-blue-50 p-2 rounded text-sm text-blue-700">
+                      <div className="bg-blue-50 p-2 rounded text-sm text-blue-700" data-cy="calculated-price-display">
                         计算单价: ¥{(settings.bucketPrice / settings.bucketQuantity).toFixed(2)}/个
                       </div>
                     </>
@@ -313,21 +315,11 @@ export default function BadmintonCalculator() {
                         }}
                         className="text-lg font-medium"
                         placeholder="0.00"
-                        style={{
-                          MozAppearance: "textfield",
-                          WebkitAppearance: "none",
-                        }}
+                        data-cy="single-price-input"
                       />
                       <div className="text-xs text-gray-500 mt-1">
                         参考价格: ¥{(settings.bucketPrice / settings.bucketQuantity).toFixed(2)}/个 (基于桶设定计算)
                       </div>
-                      <style jsx>{`
-                        input[type="number"]::-webkit-outer-spin-button,
-                        input[type="number"]::-webkit-inner-spin-button {
-                          -webkit-appearance: none;
-                          margin: 0;
-                        }
-                      `}</style>
                     </div>
                   )}
                 </div>
@@ -341,8 +333,9 @@ export default function BadmintonCalculator() {
                       <Input
                         id="venue2Hours"
                         type="number"
-                        value={settings.venue2Hours}
-                        onChange={(e) => updateSettings("venue2Hours", Number(e.target.value))}
+                        value={settings.venue2Hours || ""}
+                        onChange={(e) => updateSettings("venue2Hours", Number(e.target.value) || 0)}
+                        placeholder="0"
                         data-cy="venue-2hours-input"
                       />
                     </div>
@@ -351,8 +344,9 @@ export default function BadmintonCalculator() {
                       <Input
                         id="venue3Hours"
                         type="number"
-                        value={settings.venue3Hours}
-                        onChange={(e) => updateSettings("venue3Hours", Number(e.target.value))}
+                        value={settings.venue3Hours || ""}
+                        onChange={(e) => updateSettings("venue3Hours", Number(e.target.value) || 0)}
+                        placeholder="0"
                         data-cy="venue-3hours-input"
                       />
                     </div>
@@ -451,7 +445,7 @@ export default function BadmintonCalculator() {
         </Card>
 
         {/* 费用计算结果 */}
-        <Card className="shadow-lg border-2 border-green-200">
+        <Card className="shadow-lg border-2 border-green-200" data-cy="cost-results-section">
           <CardHeader>
             <CardTitle className="text-green-700">费用计算结果</CardTitle>
           </CardHeader>
@@ -462,14 +456,14 @@ export default function BadmintonCalculator() {
                 <div className="space-y-3">
                   {/* 3小时活动费用 */}
                   {costs.cost3Hours > 0 && (
-                    <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="bg-blue-50 p-3 rounded-lg" data-cy="cost-breakdown-3hours">
                       <h4 className="font-semibold text-blue-700 mb-2">3小时活动费用</h4>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
                           <span>参与人数:</span>
                           <span className="font-semibold">{people3Hours}人</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between" data-cy="venue-cost-display">
                           <span>场地费:</span>
                           <span className="font-semibold">¥{costs.venue3Hours}</span>
                         </div>
@@ -485,11 +479,11 @@ export default function BadmintonCalculator() {
                             <span className="font-semibold">¥{costs.ballCost7to9For3Hours.toFixed(2)}</span>
                           </div>
                         )}
-                        <div className="flex justify-between">
+                        <div className="flex justify-between" data-cy="ball-cost-display">
                           <span>总人均球费:</span>
                           <span className="font-semibold">¥{costs.ballCost3Hours.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between border-t pt-1 font-bold text-blue-700">
+                        <div className="flex justify-between border-t pt-1 font-bold text-blue-700" data-cy="cost-3hours-display">
                           <span>人均总费用:</span>
                           <span>¥{costs.cost3Hours.toFixed(2)}</span>
                         </div>
@@ -499,7 +493,7 @@ export default function BadmintonCalculator() {
 
                   {/* 2小时活动费用 */}
                   {costs.cost2Hours > 0 && (
-                    <div className="bg-green-50 p-3 rounded-lg">
+                    <div className="bg-green-50 p-3 rounded-lg" data-cy="cost-breakdown-2hours">
                       <h4 className="font-semibold text-green-700 mb-2">2小时活动费用</h4>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
@@ -514,7 +508,7 @@ export default function BadmintonCalculator() {
                           <span>人均球费:</span>
                           <span className="font-semibold">¥{costs.ballCost2Hours.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between border-t pt-1 font-bold text-green-700">
+                        <div className="flex justify-between border-t pt-1 font-bold text-green-700" data-cy="cost-2hours-display">
                           <span>人均总费用:</span>
                           <span>¥{costs.cost2Hours.toFixed(2)}</span>
                         </div>
@@ -523,7 +517,7 @@ export default function BadmintonCalculator() {
                   )}
 
                   {/* 羽毛球使用详情 */}
-                  <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="bg-gray-50 p-3 rounded-lg" data-cy="ball-usage-details">
                     <h4 className="font-semibold text-gray-700 mb-2">羽毛球使用详情</h4>
                     <div className="space-y-1 text-sm">
                       {balls6to7 > 0 && (
@@ -542,7 +536,7 @@ export default function BadmintonCalculator() {
                           </span>
                         </div>
                       )}
-                      <div className="flex justify-between border-t pt-1 font-bold">
+                      <div className="flex justify-between border-t pt-1 font-bold" data-cy="total-cost-display">
                         <span>总用球费用:</span>
                         <span>¥{costs.totalBallCost.toFixed(2)}</span>
                       </div>
@@ -552,7 +546,7 @@ export default function BadmintonCalculator() {
 
                 {/* 总结文字 */}
                 <div className="bg-orange-50 p-3 rounded-lg border-2 border-orange-200">
-                  <p className="text-sm text-gray-700 mb-3 font-medium">{costs.summary}</p>
+                  <p className="text-sm text-gray-700 mb-3 font-medium" data-cy="summary-text">{costs.summary}</p>
                   <Button onClick={copyToClipboard} className="w-full bg-orange-600 hover:bg-orange-700" data-cy="copy-button">
                     <Copy className="w-4 h-4 mr-2" />
                     复制费用总结
@@ -560,7 +554,7 @@ export default function BadmintonCalculator() {
                 </div>
               </>
             ) : (
-              <p className="text-gray-500 text-center py-4">请输入人数和羽毛球数量开始计算</p>
+              <p className="text-gray-500 text-center py-4" data-cy="no-activity-message">请输入人数和羽毛球数量开始计算</p>
             )}
           </CardContent>
         </Card>

@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "cypress.testFiles": "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
+  "tasks": [
+    {
+      "label": "Cypress: Open",
+      "type": "shell",
+      "command": "npm run cypress:open",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Cypress: Run All Tests",
+      "type": "shell",
+      "command": "npm run cypress:run",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ]
+}
