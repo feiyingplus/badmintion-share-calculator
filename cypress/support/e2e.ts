@@ -18,7 +18,6 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
-require('@shelex/cypress-allure-plugin');
 
 // Hide fetch/XHR requests from command log
 const app = window.top
