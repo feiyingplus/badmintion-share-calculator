@@ -1,4 +1,6 @@
 import { defineConfig } from 'cypress'
+import { allureCypress } from 'allure-cypress/reporter'
+import * as os from 'node:os'
 
 export default defineConfig({
   e2e: {
@@ -8,7 +10,7 @@ export default defineConfig({
     supportFile: 'cypress/support/e2e.ts',
     viewportWidth: 1280,
     viewportHeight: 720,
-    video: true,
+    video: false,
     screenshotOnRunFailure: true,
     defaultCommandTimeout: 10000,
     requestTimeout: 10000,
@@ -17,7 +19,27 @@ export default defineConfig({
       API_URL: 'http://localhost:3000',
     },
     setupNodeEvents(on, config) {
-      // 在这里实现节点事件监听器
+      allureCypress(on, config, {
+        resultsDir: 'allure-results',
+        environmentInfo: {
+          os_platform: os.platform(),
+          os_release: os.release(),
+          os_version: os.version(),
+          node_version: process.version,
+          cypress_version: config.version,
+          browser: 'Chrome',
+        },
+      })
+      return config
+    },
+    // Mochawesome reporter configuration
+    reporter: 'mochawesome',
+    reporterOptions: {
+      reportDir: 'cypress/reports/mochawesome',
+      overwrite: false,
+      html: false,
+      json: true,
+      timestamp: 'mmddyyyy_HHMMss'
     },
   },
   watchForFileChanges: false,

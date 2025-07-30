@@ -31,16 +31,98 @@ jobs:
         run: npm run test:e2e # Changed from pnpm run
         continue-on-error: true  # 即使测试失败也继续执行
 
+      - name: Generate Mochawesome Report
+        run: npm run mochawesome:generate
+        if: always()
+
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cypress-results
+          name: cypress-test-results
           path: |
             cypress/videos
             cypress/screenshots
-          retention-days: 5
+            cypress/reports/mochawesome
+          retention-days: 30
 
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mochawesome-report
+          path: cypress/reports/mochawesome/*.html
+          retention-days: 30
+
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Cypress Tests
+          path: cypress/reports/mochawesome/*.json
+          reporter: mochawesome-json
+          fail-on-error: false
+
+      - name: Add Test Summary
+        if: always()
+        run: |
+          echo "## 🧪 Cypress Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f cypress/reports/mochawesome/mochawesome.json ]; then
+            TOTAL=$(jq '.stats.tests' cypress/reports/mochawesome/mochawesome.json)
+            PASSED=$(jq '.stats.passes' cypress/reports/mochawesome/mochawesome.json)
+            FAILED=$(jq '.stats.failures' cypress/reports/mochawesome/mochawesome.json)
+            SKIPPED=$(jq '.stats.skipped' cypress/reports/mochawesome/mochawesome.json)
+            
+            echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⏭️ Skipped | $SKIPPED |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📊 [Download detailed HTML report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ No test results found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  test-dashboard:
+    name: Run Cypress Tests in Cypress Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cypress run with Dashboard
+        uses: cypress-io/github-action@v6
+        with:
+          # 如果需要构建
+          build: npm run build
+          # 如果需要启动开发服务器
+          start: npm run dev
+          # 等待服务器启动
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          # 指定浏览器
+          browser: chrome
+          # 自定义测试命令
+          command: npm run test:e2e
+          # 启用录制到 Cypress Dashboard
+          record: true
+          # 启用并行测试（可选）
+          parallel: true
+          # 指定配置文件
+          config-file: cypress.config.js
+        env:
+          # Cypress Dashboard Record Key（需要在 GitHub Secrets 中配置）
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # GitHub token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 自定义环境变量
+          NODE_ENV: test
+          CYPRESS_baseUrl: http://localhost:3000
+        continue-on-error: true
+  
   build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest

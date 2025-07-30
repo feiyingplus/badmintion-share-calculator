@@ -32,9 +32,14 @@ next-env.d.ts
 # testsprite
 /testsprite_tests
 
-// Cypress
+# Cypress
 cypress/videos
 cypress/screenshots
+cypress/reports
+
+# Allure
+allure-results
+allure-report
 
 # local bash scripts
 *.sh
