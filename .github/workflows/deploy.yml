@@ -145,6 +145,7 @@ jobs:
         env:
           # 如果有环境变量，在这里添加
           NODE_ENV: production
+          GITHUB_PAGES: true
 
       # Next.js 15+ 使用 output: 'export' 配置，不需要单独的 export 命令
       # 构建输出将直接在 out 目录中
