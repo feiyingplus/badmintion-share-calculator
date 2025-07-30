@@ -126,7 +126,7 @@ jobs:
   build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
-    needs: test  # 等待测试完成，但不依赖其结果
+    # needs: test  # 等待测试完成，但不依赖其结果
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
