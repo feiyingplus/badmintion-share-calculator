@@ -37,6 +37,7 @@ cypress/videos
 cypress/screenshots
 cypress/reports
 cypress/downloads
+cypress.env.json
 
 # Allure
 allure-results

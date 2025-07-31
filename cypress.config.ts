@@ -17,6 +17,8 @@ export default defineConfig({
     responseTimeout: 10000,
     env: {
       API_URL: 'http://localhost:3000',
+      // 从 cypress.env.json 或环境变量中读取 RECORD_KEY
+      CYPRESS_RECORD_KEY: process.env.CYPRESS_RECORD_KEY,
     },
     setupNodeEvents(on, config) {
       allureCypress(on, config, {

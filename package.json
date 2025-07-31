@@ -11,6 +11,8 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run --browser chrome --headless --spec cypress/e2e/price-setup-validation.cy.ts",
     "cypress:run:all": "cypress run --browser chrome --headless",
+    "cypress:run:all:record": "cypress run --browser chrome --headless --record",
+    "cypress:run:record:spec": "cypress run --browser chrome --headless --record --spec cypress/e2e/price-setup-validation.cy.ts",
     "test:e2e": "start-server-and-test dev http://localhost:3000 cypress:run",
     "allure:clear": "rm -rf allure-results",
     "allure:generate": "allure generate allure-results --clean -o allure-report",
@@ -21,7 +23,8 @@
     "mochawesome:merge": "mochawesome-merge cypress/reports/mochawesome/*.json > cypress/reports/mochawesome/mochawesome.json && marge cypress/reports/mochawesome/mochawesome.json --reportDir cypress/reports/mochawesome --inline",
     "mochawesome:generate": "npm run mochawesome:merge",
     "mochawesome:report": "npm run mochawesome:clear && (npm run cypress:run || true) && npm run mochawesome:generate",
-    "test:both": "npm run mochawesome:clear && npm run allure:clear && (npm run cypress:run || true) && npm run allure:generate && npm run mochawesome:generate"
+    "test:both": "npm run mochawesome:clear && npm run allure:clear && (npm run cypress:run || true) && npm run allure:generate && npm run mochawesome:generate",
+    "cypress:verify-key": "node -e \"console.log('CYPRESS_RECORD_KEY:', process.env.CYPRESS_RECORD_KEY ? 'Set' : 'Not set')\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
