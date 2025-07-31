@@ -256,9 +256,8 @@ export default function BadmintonCalculator() {
                       <button
                         type="button"
                         onClick={switchToBucketPrice}
-                        className={`px-3 py-1 text-xs rounded transition-colors ${
-                          !useSinglePrice ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"
-                        }`}
+                        className={`px-3 py-1 text-xs rounded transition-colors ${!useSinglePrice ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"
+                          }`}
                         data-cy="bucket-mode-button"
                       >
                         按桶设定
@@ -266,9 +265,8 @@ export default function BadmintonCalculator() {
                       <button
                         type="button"
                         onClick={switchToSinglePrice}
-                        className={`px-3 py-1 text-xs rounded transition-colors ${
-                          useSinglePrice ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"
-                        }`}
+                        className={`px-3 py-1 text-xs rounded transition-colors ${useSinglePrice ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"
+                          }`}
                         data-cy="single-mode-button"
                       >
                         单价设定
@@ -284,6 +282,7 @@ export default function BadmintonCalculator() {
                           <Input
                             id="bucketPrice"
                             type="number"
+                            step="0.01"
                             value={settings.bucketPrice}
                             onChange={(e) => updateSettings("bucketPrice", e.target.value)}
                             placeholder="0"
@@ -316,6 +315,7 @@ export default function BadmintonCalculator() {
                       <Input
                         id="singlePrice"
                         type="number"
+                        step="0.01"
                         value={settings.singlePrice}
                         onChange={(e) => {
                           updateSettings("singlePrice", e.target.value)
@@ -353,6 +353,7 @@ export default function BadmintonCalculator() {
                       <Input
                         id="venue2Hours"
                         type="number"
+                        step="0.01"
                         value={settings.venue2Hours}
                         onChange={(e) => updateSettings("venue2Hours", e.target.value)}
                         placeholder="0"
@@ -364,6 +365,7 @@ export default function BadmintonCalculator() {
                       <Input
                         id="venue3Hours"
                         type="number"
+                        step="0.01"
                         value={settings.venue3Hours}
                         onChange={(e) => updateSettings("venue3Hours", e.target.value)}
                         placeholder="0"

@@ -47,6 +47,7 @@ describe('Badminton Price Setup Validation', () => {
     it('should update calculations when bucket settings change', () => {
       settingsPage
         .openSettings()
+        .ensureSettingsOpen()
         .setBucketPrice(135)
         .setBucketQuantity(12);
 
@@ -54,9 +55,10 @@ describe('Badminton Price Setup Validation', () => {
         .calculateWithInputs({ people3Hours: 4, people2Hours: 2, balls6to7: 12, balls7to9: 16 });
 
       settingsPage
+        .ensureSettingsOpen()
         .setBucketPrice(150)
         .setBucketQuantity(10);
-      
+
       // Verify price updated in display
       settingsPage.verifyCurrentPrice(15.00);
     });
@@ -88,6 +90,7 @@ describe('Badminton Price Setup Validation', () => {
     it('should switch between price modes correctly', () => {
       settingsPage
         .openSettings()
+        .ensureSettingsOpen()
         .setBucketPrice(135)
         .setBucketQuantity(12)
         .verifyCurrentPrice(11.25);
@@ -115,7 +118,7 @@ describe('Badminton Price Setup Validation', () => {
 
       calculatorPage
         .calculateWithInputs({ people2Hours: 2, balls7to9: 10 });
-      
+
       // Verify calculations use new venue price
       calculatorPage.verifyResultsVisible();
     });
@@ -128,7 +131,7 @@ describe('Badminton Price Setup Validation', () => {
 
       calculatorPage
         .calculateWithInputs({ people3Hours: 4, balls6to7: 12, balls7to9: 16 });
-      
+
       // Verify calculations use new venue price
       calculatorPage.verifyResultsVisible();
     });
@@ -150,7 +153,7 @@ describe('Badminton Price Setup Validation', () => {
 
         calculatorPage
           .calculateWithInputs({ people3Hours: 3, people2Hours: 2, balls6to7: 10, balls7to9: 12 });
-        
+
         calculatorPage.verifyResultsVisible();
       });
     });
@@ -158,6 +161,7 @@ describe('Badminton Price Setup Validation', () => {
 
   describe('Settings Reset Functionality', () => {
     it('should reset to default settings', () => {
+      cy.clearLocalStorage()
       settingsPage
         .openSettings()
         .setBucketPrice(200)
@@ -168,6 +172,7 @@ describe('Badminton Price Setup Validation', () => {
 
       settingsPage
         .resetSettings()
+        .ensureSettingsOpen()
         .verifyCurrentPrice(11.25);
     });
 
@@ -182,9 +187,10 @@ describe('Badminton Price Setup Validation', () => {
       // Reload page and verify settings persist
       cy.reload();
       basePage.waitForPageLoad();
-      
+
       settingsPage
         .openSettings()
+        .ensureSettingsOpen()
         .verifyCurrentPrice(10.00);
     });
   });
@@ -209,7 +215,7 @@ describe('Badminton Price Setup Validation', () => {
         // Verify calculations use correct price
         calculatorPage
           .calculateWithInputs({ people3Hours: 4, balls6to7: 12, balls7to9: 16 });
-        
+
         const expectedTotalBalls = 28;
         const expectedBallCost = expectedTotalBalls * expectedSingle;
         calculatorPage.verifyResultsVisible();
@@ -219,7 +225,7 @@ describe('Badminton Price Setup Validation', () => {
     it('should validate price boundaries', () => {
       const boundaryTests = [
         { price: 0.01, quantity: 1, expected: 0.01 },
-                { price: 999, quantity: 999, expected: 1.00 },
+        { price: 999, quantity: 999, expected: 1.00 },
         { price: 50, quantity: 1, expected: 50.00 },
         { price: 1, quantity: 50, expected: 0.02 }
       ];
