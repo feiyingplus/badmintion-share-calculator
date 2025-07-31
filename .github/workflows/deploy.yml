@@ -148,7 +148,7 @@ jobs:
     name: Run Cypress Tests in Cypress Dashboard
     runs-on: ubuntu-latest
     needs: test
-    if: ${{ secrets.CYPRESS_RECORD_KEY != '' }}  # 只有当 record key 存在时才运行
+    # 如果你想完全跳过这个 job，可以设置为 if: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -239,7 +239,7 @@ jobs:
         run: |
           echo "🔍 Debugging Cypress Dashboard connection issues..."
           echo "Project ID: fgic4o"
-          echo "Record Key configured: ${{ secrets.CYPRESS_RECORD_KEY != '' }}"
+          echo "Record Key configured: $([ -n '${{ secrets.CYPRESS_RECORD_KEY }}' ] && echo 'Yes' || echo 'No')"
           echo ""
           echo "Common issues and solutions:"
           echo "1. Record Key mismatch - Verify the key matches your Cypress Dashboard project"
@@ -257,10 +257,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     # needs: test  # 等待测试完成，但不依赖其结果
     
-    # 设置部署环境
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    # 设置部署环境（如果在仓库中配置了 github-pages 环境）
+    # environment:
+    #   name: github-pages
+    #   url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
