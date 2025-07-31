@@ -15,7 +15,7 @@ describe('Input Field Combinations', () => {
     basePage.navigate().waitForPageLoad();
     
     // Reset to default settings before each test
-    settingsPage.openSettings().resetSettings().closeSettings();
+    settingsPage.openSettings().ensureSettingsOpen().resetSettings().closeSettings();
   });
 
   describe('Basic Input Validation', () => {
