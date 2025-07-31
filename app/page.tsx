@@ -10,19 +10,19 @@ import { useToast } from "@/hooks/use-toast"
 import { ChevronDown, Copy, Calculator, Users, Target } from "lucide-react"
 
 interface BadmintonSettings {
-  bucketPrice: number
-  bucketQuantity: number
-  singlePrice: number
-  venue2Hours: number
-  venue3Hours: number
+  bucketPrice: string
+  bucketQuantity: string
+  singlePrice: string
+  venue2Hours: string
+  venue3Hours: string
 }
 
 const defaultSettings: BadmintonSettings = {
-  bucketPrice: 135,
-  bucketQuantity: 12,
-  singlePrice: 11.25,
-  venue2Hours: 25,
-  venue3Hours: 30,
+  bucketPrice: "135",
+  bucketQuantity: "12",
+  singlePrice: "11.25",
+  venue2Hours: "25",
+  venue3Hours: "30",
 }
 
 export default function BadmintonCalculator() {
@@ -64,11 +64,21 @@ export default function BadmintonCalculator() {
 
   // 计算单个羽毛球价格
   const calculateSinglePrice = () => {
-    return useSinglePrice ? settings.singlePrice : settings.bucketPrice / settings.bucketQuantity
+    if (useSinglePrice) {
+      const price = parseFloat(settings.singlePrice)
+      return isNaN(price) ? 0 : price
+    } else {
+      const bucketPrice = parseFloat(settings.bucketPrice)
+      const bucketQuantity = parseFloat(settings.bucketQuantity)
+      if (isNaN(bucketPrice) || isNaN(bucketQuantity) || bucketQuantity === 0) {
+        return 0
+      }
+      return bucketPrice / bucketQuantity
+    }
   }
 
   // 更新设置
-  const updateSettings = (key: keyof BadmintonSettings, value: number) => {
+  const updateSettings = (key: keyof BadmintonSettings, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }))
   }
 
@@ -87,8 +97,12 @@ export default function BadmintonCalculator() {
   const switchToSinglePrice = () => {
     // 只有在用户没有自定义过单价时，才用桶设定计算的单价作为初始值
     if (!hasCustomizedSinglePrice) {
-      const calculatedSingle = settings.bucketPrice / settings.bucketQuantity
-      setSettings((prev) => ({ ...prev, singlePrice: calculatedSingle }))
+      const bucketPrice = parseFloat(settings.bucketPrice)
+      const bucketQuantity = parseFloat(settings.bucketQuantity)
+      if (!isNaN(bucketPrice) && !isNaN(bucketQuantity) && bucketQuantity !== 0) {
+        const calculatedSingle = bucketPrice / bucketQuantity
+        setSettings((prev) => ({ ...prev, singlePrice: calculatedSingle.toString() }))
+      }
     }
     setUseSinglePrice(true)
   }
@@ -129,6 +143,12 @@ export default function BadmintonCalculator() {
     // 计算总用球费用
     result.totalBallCost = (balls6to7 + balls7to9) * singlePrice
 
+    // 获取场地费数值
+    const venue3HoursNum = parseFloat(settings.venue3Hours) || 0
+    const venue2HoursNum = parseFloat(settings.venue2Hours) || 0
+    result.venue3Hours = venue3HoursNum
+    result.venue2Hours = venue2HoursNum
+
     // 计算3小时人员费用
     if (people3Hours > 0) {
       // 6-7点：只有3小时人员参与
@@ -145,14 +165,14 @@ export default function BadmintonCalculator() {
       }
 
       result.ballCost3Hours = result.ballCost6to7For3Hours + result.ballCost7to9For3Hours
-      result.cost3Hours = result.venue3Hours + result.ballCost3Hours
+      result.cost3Hours = venue3HoursNum + result.ballCost3Hours
     }
 
     // 计算2小时人员费用（仅参与7-9点）
     if (people2Hours > 0 && has7to9) {
       const totalPeople7to9 = people3Hours + people2Hours
       result.ballCost2Hours = (balls7to9 * singlePrice) / totalPeople7to9
-      result.cost2Hours = result.venue2Hours + result.ballCost2Hours
+      result.cost2Hours = venue2HoursNum + result.ballCost2Hours
     }
 
     // 生成总结文字
@@ -264,8 +284,8 @@ export default function BadmintonCalculator() {
                           <Input
                             id="bucketPrice"
                             type="number"
-                            value={settings.bucketPrice || ""}
-                            onChange={(e) => updateSettings("bucketPrice", Number(e.target.value) || 0)}
+                            value={settings.bucketPrice}
+                            onChange={(e) => updateSettings("bucketPrice", e.target.value)}
                             placeholder="0"
                             data-cy="bucket-price-input"
                           />
@@ -275,15 +295,15 @@ export default function BadmintonCalculator() {
                           <Input
                             id="bucketQuantity"
                             type="number"
-                            value={settings.bucketQuantity || ""}
-                            onChange={(e) => updateSettings("bucketQuantity", Number(e.target.value) || 0)}
+                            value={settings.bucketQuantity}
+                            onChange={(e) => updateSettings("bucketQuantity", e.target.value)}
                             placeholder="0"
                             data-cy="bucket-quantity-input"
                           />
                         </div>
                       </div>
                       <div className="bg-blue-50 p-2 rounded text-sm text-blue-700" data-cy="calculated-price-display">
-                        计算单价: ¥{(settings.bucketPrice / settings.bucketQuantity).toFixed(2)}/个
+                        计算单价: ¥{calculateSinglePrice().toFixed(2)}/个
                       </div>
                     </>
                   ) : (
@@ -296,29 +316,29 @@ export default function BadmintonCalculator() {
                       <Input
                         id="singlePrice"
                         type="number"
-                        value={settings.singlePrice === 0 ? "" : settings.singlePrice}
+                        value={settings.singlePrice}
                         onChange={(e) => {
-                          const value = e.target.value
-                          if (value === "") {
-                            updateSettings("singlePrice", 0)
-                          } else if (!isNaN(Number(value))) {
-                            updateSettings("singlePrice", Number(value))
+                          updateSettings("singlePrice", e.target.value)
+                          if (e.target.value !== "") {
                             setHasCustomizedSinglePrice(true)
                           }
                         }}
                         onFocus={(e) => {
-                          if (settings.singlePrice === 0) {
-                            e.target.value = ""
-                          } else {
-                            e.target.select()
-                          }
+                          e.target.select()
                         }}
                         className="text-lg font-medium"
                         placeholder="0.00"
                         data-cy="single-price-input"
                       />
                       <div className="text-xs text-gray-500 mt-1">
-                        参考价格: ¥{(settings.bucketPrice / settings.bucketQuantity).toFixed(2)}/个 (基于桶设定计算)
+                        参考价格: ¥{(() => {
+                          const bucketPrice = parseFloat(settings.bucketPrice)
+                          const bucketQuantity = parseFloat(settings.bucketQuantity)
+                          if (isNaN(bucketPrice) || isNaN(bucketQuantity) || bucketQuantity === 0) {
+                            return "0.00"
+                          }
+                          return (bucketPrice / bucketQuantity).toFixed(2)
+                        })()}/个 (基于桶设定计算)
                       </div>
                     </div>
                   )}
@@ -333,8 +353,8 @@ export default function BadmintonCalculator() {
                       <Input
                         id="venue2Hours"
                         type="number"
-                        value={settings.venue2Hours || ""}
-                        onChange={(e) => updateSettings("venue2Hours", Number(e.target.value) || 0)}
+                        value={settings.venue2Hours}
+                        onChange={(e) => updateSettings("venue2Hours", e.target.value)}
                         placeholder="0"
                         data-cy="venue-2hours-input"
                       />
@@ -344,8 +364,8 @@ export default function BadmintonCalculator() {
                       <Input
                         id="venue3Hours"
                         type="number"
-                        value={settings.venue3Hours || ""}
-                        onChange={(e) => updateSettings("venue3Hours", Number(e.target.value) || 0)}
+                        value={settings.venue3Hours}
+                        onChange={(e) => updateSettings("venue3Hours", e.target.value)}
                         placeholder="0"
                         data-cy="venue-3hours-input"
                       />
