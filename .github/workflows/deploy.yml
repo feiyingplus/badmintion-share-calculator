@@ -7,6 +7,20 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# 设置 GITHUB_TOKEN 权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+  checks: write
+  pull-requests: write
+
+# 并发控制 - 确保同时只有一个部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   test:
     name: Run Cypress Tests
@@ -239,7 +253,14 @@ jobs:
   build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
+    # 只在 main 分支的 push 事件时部署，不在 PR 时部署
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     # needs: test  # 等待测试完成，但不依赖其结果
+    
+    # 设置部署环境
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -266,10 +287,14 @@ jobs:
       - name: Add .nojekyll file
         run: touch out/.nojekyll
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: out  # Next.js 静态输出目录
-          branch: gh-pages
-          clean: true
-          single-commit: true
+          path: out
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
