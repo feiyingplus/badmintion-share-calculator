@@ -287,8 +287,18 @@ jobs:
       - name: Add .nojekyll file
         run: touch out/.nojekyll
 
+      - name: Verify build output
+        run: |
+          echo "🔍 Checking build output..."
+          ls -la out/
+          echo "📁 Build directory size: $(du -sh out/)"
+          echo "📄 Files count: $(find out -type f | wc -l)"
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          # 启用静态文件服务
+          static_site_generator: next
 
       - name: Upload to GitHub Pages
         uses: actions/upload-pages-artifact@v3
@@ -298,3 +308,17 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # 添加超时设置
+          timeout: 600000
+        
+      # 备用部署方法（如果上面失败）
+      - name: Deploy with JamesIves action (fallback)
+        if: failure()
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: out
+          branch: gh-pages
+          clean: true
+          single-commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
