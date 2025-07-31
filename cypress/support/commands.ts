@@ -29,6 +29,11 @@ declare global {
        * Custom command to reset calculator settings to defaults
        */
       resetCalculatorSettings(): Chainable<void>
+      
+      /**
+       * Custom command to ensure settings panel is open
+       */
+      ensureSettingsOpen(): Chainable<void>
     }
   }
 }
@@ -42,9 +47,61 @@ Cypress.Commands.add('clearAndType', (selector: string, value: string) => {
 })
 
 Cypress.Commands.add('resetCalculatorSettings', () => {
-  cy.get('[data-cy=settings-collapsible]').click()
-  cy.get('[data-cy=reset-settings-button]').click()
-  cy.get('[data-cy=settings-collapsible]').click()
+  // 使用自定义命令确保设置打开
+  cy.ensureSettingsOpen();
+  
+  // 点击重置按钮
+  cy.get('[data-cy=reset-settings-button]')
+    .should('be.visible')
+    .should('not.be.disabled')
+    .click();
+  
+  // 关闭设置区域
+  cy.get('[data-cy=settings-collapsible]').click();
+  
+  // 等待设置区域完全关闭
+  cy.get('[data-cy=settings-collapsible]')
+    .siblings()
+    .filter('[data-state], [data-radix-collapsible-content]')
+    .should(($content) => {
+      const state = $content.attr('data-state');
+      if (state) {
+        expect(state).to.equal('closed');
+      }
+      const isVisible = $content.is(':visible');
+      const height = $content.height();
+      expect(isVisible === false || height === 0).to.be.true;
+    });
+})
+
+Cypress.Commands.add('ensureSettingsOpen', () => {
+  // 检查重置按钮是否可见
+  cy.get('body').then(($body) => {
+    const isButtonVisible = $body.find('[data-cy=reset-settings-button]:visible').length > 0;
+    
+    if (!isButtonVisible) {
+      // 点击打开设置
+      cy.get('[data-cy=settings-collapsible]').click();
+      
+      // 等待 CollapsibleContent 完全展开
+      cy.get('[data-cy=settings-collapsible]')
+        .siblings()
+        .filter('[data-state], [data-radix-collapsible-content]')
+        .should(($content) => {
+          const state = $content.attr('data-state');
+          if (state) {
+            expect(state).to.equal('open');
+          }
+          expect($content).to.be.visible;
+          expect($content.height()).to.be.greaterThan(0);
+        });
+    }
+  });
+  
+  // 确保重置按钮最终可见且可交互
+  cy.get('[data-cy=reset-settings-button]')
+    .should('be.visible')
+    .should('not.be.disabled');
 })
 
 export {} // Prevent TypeScript from complaining about duplicate identifiers

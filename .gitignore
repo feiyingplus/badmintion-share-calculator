@@ -57,3 +57,6 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.swp
+
+# VScode settings
+.vscode/settings.json

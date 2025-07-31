@@ -22,6 +22,40 @@ import 'allure-cypress'
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
+// Disable CSS animations and transitions for faster, more stable tests
+Cypress.on('window:before:load', (win) => {
+  const css = `
+    *, *::before, *::after {
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+      scroll-behavior: auto !important;
+    }
+    
+    /* Disable specific animation properties */
+    * {
+      -webkit-animation-duration: 0s !important;
+      -webkit-animation-delay: 0s !important;
+      -webkit-transition-duration: 0s !important;
+      -webkit-transition-delay: 0s !important;
+      -moz-animation-duration: 0s !important;
+      -moz-animation-delay: 0s !important;
+      -moz-transition-duration: 0s !important;
+      -moz-transition-delay: 0s !important;
+      -o-animation-duration: 0s !important;
+      -o-animation-delay: 0s !important;
+      -o-transition-duration: 0s !important;
+      -o-transition-delay: 0s !important;
+    }
+  `
+
+  const style = win.document.createElement('style')
+  style.innerHTML = css
+  style.setAttribute('data-cypress-disable-animations', '')
+  win.document.head.appendChild(style)
+})
+
 // Hide fetch/XHR requests from command log
 const app = window.top
 if (!app.document.head.querySelector('[data-hide-command-log-request]')) {
