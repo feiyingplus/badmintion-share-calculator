@@ -126,6 +126,7 @@ describe('Badminton Price Setup Validation', () => {
     it('should configure 3-hour venue pricing', () => {
       settingsPage
         .openSettings()
+        .ensureSettingsOpen()
         .setVenue3HoursPrice(35)
         .closeSettings();
 
