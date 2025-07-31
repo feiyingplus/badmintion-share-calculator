@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'  # Changed from pnpm
 
       - name: Install dependencies
@@ -147,7 +147,8 @@ jobs:
   test-dashboard:
     name: Run Cypress Tests in Cypress Dashboard
     runs-on: ubuntu-latest
-    needs: test
+    needs: build-and-deploy
+    if: success() && github.ref == 'refs/heads/main'
     # 如果你想完全跳过这个 job，可以设置为 if: false
     steps:
       - name: Checkout code
@@ -156,7 +157,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -220,8 +221,8 @@ jobs:
           # 指定配置文件
           config-file: cypress.config.ts
           
-          # 指定测试规格
-          spec: cypress/e2e/price-setup-validation.cy.ts
+          # 指定测试规格 - 运行所有 e2e 测试
+          spec: cypress/e2e/*.cy.ts
         env:
           # Cypress Dashboard Record Key
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -268,7 +269,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'  # Changed from pnpm
 
       - name: Install dependencies
