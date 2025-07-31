@@ -18,7 +18,7 @@
     "allure:serve": "allure serve allure-results",
     "allure:report": "npm run allure:clear && (npm run cypress:run || true) && npm run allure:generate && npm run allure:open",
     "mochawesome:clear": "rm -rf cypress/reports",
-    "mochawesome:merge": "marge cypress/reports/mochawesome/*.json --reportDir cypress/reports/mochawesome --inline",
+    "mochawesome:merge": "mochawesome-merge cypress/reports/mochawesome/*.json > cypress/reports/mochawesome/mochawesome.json && marge cypress/reports/mochawesome/mochawesome.json --reportDir cypress/reports/mochawesome --inline",
     "mochawesome:generate": "npm run mochawesome:merge",
     "mochawesome:report": "npm run mochawesome:clear && (npm run cypress:run || true) && npm run mochawesome:generate",
     "test:both": "npm run mochawesome:clear && npm run allure:clear && (npm run cypress:run || true) && npm run allure:generate && npm run mochawesome:generate"

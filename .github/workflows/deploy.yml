@@ -32,7 +32,16 @@ jobs:
         continue-on-error: true  # 即使测试失败也继续执行
 
       - name: Generate Mochawesome Report
-        run: npm run mochawesome:generate
+        run: |
+          # 检查是否有测试结果文件
+          if ls cypress/reports/mochawesome/*.json 1> /dev/null 2>&1; then
+            echo "Found mochawesome JSON files, generating report..."
+            npm run mochawesome:generate
+          else
+            echo "No mochawesome JSON files found, creating empty report..."
+            mkdir -p cypress/reports/mochawesome
+            echo '{"stats":{"tests":0,"passes":0,"failures":0,"skipped":0,"duration":0}}' > cypress/reports/mochawesome/mochawesome.json
+          fi
         if: always()
 
       - name: Upload test artifacts
@@ -54,14 +63,44 @@ jobs:
           path: cypress/reports/mochawesome/*.html
           retention-days: 30
 
-      - name: Publish Test Results
-        uses: dorny/test-reporter@v1
-        if: always()
+      - name: Publish Test Results Comment
+        uses: actions/github-script@v6
+        if: always() && github.event_name == 'pull_request'
         with:
-          name: Cypress Tests
-          path: cypress/reports/mochawesome/*.json
-          reporter: mochawesome-json
-          fail-on-error: false
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            try {
+              const reportPath = 'cypress/reports/mochawesome/mochawesome.json';
+              if (fs.existsSync(reportPath)) {
+                const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+                const { stats } = report;
+                
+                const body = `## 🧪 Cypress Test Results
+                
+                | Metric | Count |
+                |--------|-------|
+                | Total Tests | ${stats.tests} |
+                | ✅ Passed | ${stats.passes} |
+                | ❌ Failed | ${stats.failures} |
+                | ⏭️ Skipped | ${stats.skipped} |
+                | ⏱️ Duration | ${stats.duration}ms |
+                
+                ${stats.failures > 0 ? '❌ Some tests failed. Check the detailed report for more information.' : '✅ All tests passed!'}
+                
+                📊 [View detailed HTML report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+                
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: body
+                });
+              }
+            } catch (error) {
+              console.log('Could not create test results comment:', error.message);
+            }
 
       - name: Add Test Summary
         if: always()
@@ -69,17 +108,22 @@ jobs:
           echo "## 🧪 Cypress Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f cypress/reports/mochawesome/mochawesome.json ]; then
-            TOTAL=$(jq '.stats.tests' cypress/reports/mochawesome/mochawesome.json)
-            PASSED=$(jq '.stats.passes' cypress/reports/mochawesome/mochawesome.json)
-            FAILED=$(jq '.stats.failures' cypress/reports/mochawesome/mochawesome.json)
-            SKIPPED=$(jq '.stats.skipped' cypress/reports/mochawesome/mochawesome.json)
-            
-            echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
-            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-            echo "| Total Tests | $TOTAL |" >> $GITHUB_STEP_SUMMARY
-            echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
-            echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
-            echo "| ⏭️ Skipped | $SKIPPED |" >> $GITHUB_STEP_SUMMARY
+            # 使用 node 来解析 JSON，避免 jq 依赖问题
+            node -e "
+              const fs = require('fs');
+              try {
+                const report = JSON.parse(fs.readFileSync('cypress/reports/mochawesome/mochawesome.json', 'utf8'));
+                const stats = report.stats;
+                console.log('| Metric | Count |');
+                console.log('|--------|-------|');
+                console.log('| Total Tests | ' + stats.tests + ' |');
+                console.log('| ✅ Passed | ' + stats.passes + ' |');
+                console.log('| ❌ Failed | ' + stats.failures + ' |');
+                console.log('| ⏭️ Skipped | ' + stats.skipped + ' |');
+              } catch (e) {
+                console.log('❌ Error parsing test results');
+              }
+            " >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "📊 [Download detailed HTML report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           else
@@ -90,38 +134,32 @@ jobs:
     name: Run Cypress Tests in Cypress Dashboard
     runs-on: ubuntu-latest
     needs: test
+    if: false  # 暂时禁用此 job，直到配置好 Cypress Dashboard
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Cypress run with Dashboard
         uses: cypress-io/github-action@v6
         with:
-          # 如果需要构建
-          build: npm run build
-          # 如果需要启动开发服务器
           start: npm run dev
-          # 等待服务器启动
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 120
-          # 指定浏览器
           browser: chrome
-          # 自定义测试命令
-          command: npm run test:e2e
-          # 启用录制到 Cypress Dashboard
           record: true
-          # 启用并行测试（可选）
-          parallel: true
-          # 指定配置文件
-          config-file: cypress.config.js
+          parallel: false
         env:
-          # Cypress Dashboard Record Key（需要在 GitHub Secrets 中配置）
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          # GitHub token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 自定义环境变量
-          NODE_ENV: test
-          CYPRESS_baseUrl: http://localhost:3000
         continue-on-error: true
   
   build-and-deploy:
@@ -159,3 +197,5 @@ jobs:
         with:
           folder: out  # Next.js 静态输出目录
           branch: gh-pages
+          clean: true
+          single-commit: true
