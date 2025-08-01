@@ -228,7 +228,7 @@ export default function BadmintonCalculator() {
             <Calculator className="w-8 h-8 text-green-600" />
             羽毛球费用计算器
           </h1>
-          <p className="text-gray-600" data-cy="calculator-subtitle">🏸羽动人生🏸</p>
+          <p className="text-gray-600" data-cy="calculator-subtitle">🏸羽月生辉欢迎您🏸</p>
         </div>
 
         {/* 费用设定区域 */}
