@@ -252,12 +252,14 @@ export default function BadmintonCalculator() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-4 mb-3">
                     <h4 className="font-semibold text-gray-700">羽毛球价格设定</h4>
-                    <div className="flex bg-gray-100 rounded-lg p-1">
+                    <div className="flex bg-gray-50/80 backdrop-blur-sm rounded-xl p-1.5 shadow-inner border border-gray-200/50">
                       <button
                         type="button"
                         onClick={switchToBucketPrice}
-                        className={`px-3 py-1 text-xs rounded transition-colors ${!useSinglePrice ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"
-                          }`}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-300 ease-out ${!useSinglePrice 
+                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-200/50 border border-blue-300/50 scale-[1.02] transform" 
+                          : "text-gray-500 hover:text-gray-700 hover:bg-white/50 active:scale-95"
+                        }`}
                         data-cy="bucket-mode-button"
                       >
                         按桶设定
@@ -265,8 +267,10 @@ export default function BadmintonCalculator() {
                       <button
                         type="button"
                         onClick={switchToSinglePrice}
-                        className={`px-3 py-1 text-xs rounded transition-colors ${useSinglePrice ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"
-                          }`}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-300 ease-out ${useSinglePrice 
+                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-200/50 border border-blue-300/50 scale-[1.02] transform" 
+                          : "text-gray-500 hover:text-gray-700 hover:bg-white/50 active:scale-95"
+                        }`}
                         data-cy="single-mode-button"
                       >
                         单价设定
